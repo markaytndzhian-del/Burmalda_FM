@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burmalda FN</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 30px 10px; margin: 0; }
+        .player-card { background: #1e293b; padding: 25px; border-radius: 15px; display: inline-block; width: 90%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); box-sizing: border-box; }
+        button { background: #3ecf8e; color: #1e293b; border: none; padding: 15px 40px; font-size: 18px; border-radius: 25px; cursor: pointer; font-weight: bold; margin-top: 20px; width: 100%; }
+        button:hover { background: #34b279; }
+        #track-title { color: #3ecf8e; font-size: 18px; font-weight: bold; margin: 15px 0; min-height: 24px; }
+        .playlist-container { text-align: left; background: #0f172a; border-radius: 10px; padding: 10px; margin-top: 20px; max-height: 200px; overflow-y: auto; }
+        .track-item { padding: 8px 10px; border-bottom: 1px solid #1e293b; font-size: 14px; color: #94a3b8; }
+        .track-item.active { color: #3ecf8e; font-weight: bold; background: rgba(62, 207, 142, 0.1); border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="player-card">
+        <h1>📻 НАШЕ РАДИО</h1>
+        <div id="track-title">Нажмите PLAY для эфира</div>
+        <button id="play-btn">PLAY</button>
+
+        <div class="playlist-container" id="playlist-view">
+            <!-- Список треков сгенерируется автоматически -->
+        </div>
+    </div>
+
+    <script>
+        // ВСТАВЬТЕ СЮДА СВОИ НАЗВАНИЯ И ССЫЛКИ ИЗ ХРАНИЛИЩА (ВСЕГО 9 МЕСТ)
+        const playlist = [
+            { title: "After Drun", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/After%20Drun.mp3" },
+            { title: "Дай", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Dai.mp3" },
+            { title: "Друнтик", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Druntik.mp3" },
+            { title: "Куми Куми", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Kymi%20Kymi.mp3" },
+            { title: "Лудохамам", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Lydoxamam.mp3" },
+            { title: "Общага", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Obshga.mp3" },
+            { title: "Сливы на Морозе", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Slivi%20Ha%20Moroze.mp3" },
+            { title: "Сливы Щавель", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Slivi%20shavel.mp3" },
+            { title: "Танцы под Бурмалдой", url: "https://jxiggqopjnnyikrlrutp.supabase.co/storage/v1/object/public/MP3.%20Files/Tanci%20Pod%20Burmaldoy.mp3" }
+        ];
+
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        const playBtn = document.getElementById('play-btn');
+        const trackTitle = document.getElementById('track-title');
+        const playlistView = document.getElementById('playlist-view');
+
+        // Функция для отображения списка треков на экране
+        function renderPlaylist() {
+            playlistView.innerHTML = '';
+            playlist.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = 'track-item';
+                if (index === currentTrackIndex && audio.src) {
+                    item.className += ' active';
+                }
+                item.innerText = track.title;
+                playlistView.appendChild(item);
+            });
+        }
+
+        function loadTrack(index) {
+            audio.src = playlist[index].url;
+            trackTitle.innerText = "В эфире: " + playlist[index].title;
+            renderPlaylist();
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                if (!audio.src) loadTrack(currentTrackIndex);
+                audio.play().catch(err => {
+                    trackTitle.innerText = "Ошибка: проверьте ссылки!";
+                    console.error(err);
+                });
+                playBtn.innerText = "PAUSE";
+            } else {
+                audio.pause();
+                playBtn.innerText = "PLAY";
+            }
+        });
+
+        // Автоматический переход на следующий трек из 9 доступных
+        audio.addEventListener('ended', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(currentTrackIndex);
+            audio.play();
+        });
+
+        // Первичный вывод списка при запуске сайта
+        renderPlaylist();
+    </script>
+</body>
+</html>
